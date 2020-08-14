@@ -9,7 +9,7 @@ RUN sed 's/main$/main universe/' -i /etc/apt/sources.list && \
     true | /usr/bin/debconf-set-selections && \
     apt-get install -y wget default-jre libxext-dev libswt-gtk-4-jni && \
     apt-get install -y libxrender-dev libxtst-dev && \
-    apt-get install -y gcc g++ && \
+    apt-get install -y gcc gcc-avr g++ && \
     apt-get install -y git && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
