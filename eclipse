@@ -1,7 +1,8 @@
 #!/bin/bash
 
 docker run -ti --rm \
-           -e DISPLAY=$DISPLAY \
+	   -e DISPLAY=$DISPLAY \
            -v /tmp/.X11-unix:/tmp/.X11-unix \
            -v "`pwd`":/workspace \
+	   --device=/dev/bus/usb/003/008 \
            eclipse-mn:v1.3

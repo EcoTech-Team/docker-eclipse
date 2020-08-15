@@ -1,5 +1,6 @@
 FROM ubuntu:18.04
 MAINTAINER Norbert Kamiński "norbert.kaminski@3mbed.com"
+USER root
 
 RUN sed 's/main$/main universe/' -i /etc/apt/sources.list && \
     apt-get update && apt-get install -y software-properties-common && \
@@ -9,7 +10,7 @@ RUN sed 's/main$/main universe/' -i /etc/apt/sources.list && \
     true | /usr/bin/debconf-set-selections && \
     apt-get install -y wget default-jre libxext-dev libswt-gtk-4-jni && \
     apt-get install -y libxrender-dev libxtst-dev && \
-    apt-get install -y gcc gcc-avr g++ make && \
+    apt-get install -y gcc gcc-avr g++ make udev && \
     apt-get install -y git usbutils lib32ncurses5 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
@@ -19,7 +20,7 @@ RUN sed 's/main$/main universe/' -i /etc/apt/sources.list && \
 # the netbeans image
 RUN apt-get update && apt-get install -y libgtk2.0-0 libcanberra-gtk-module
 
-RUN wget http://eclipse.c3sl.ufpr.br/technology/epp/downloads/release/2020-03/R/eclipse-cpp-2020-03-R-incubation-linux-gtk-x86_64.tar.gz \
+RUN wget http://mirror.dkm.cz/eclipse/technology/epp/downloads/release/2020-03/R/eclipse-cpp-2020-03-R-incubation-linux-gtk-x86_64.tar.gz \
     -O /tmp/eclipse.tar.gz -q && \
     echo 'Installing eclipse' && \
     tar -xf /tmp/eclipse.tar.gz -C /opt && \
@@ -40,10 +41,10 @@ WORKDIR /home/developer
 
 RUN git clone -b mapy https://github.com/EcoTech-Team/Software.git ~/Software
 RUN git clone -b develop https://github.com/EcoTech-Team/Hardware.git ~/Hardware
-RUN echo 'ATTRS{idVendor}=="0483", ATTRS{idProduct}=="3748", MODE="664", GROUP="plugdev"' >> /etc/udev/rules.d
-RUN echo 'SUBSYSTEM=="usb",GROUP="users",MODE="0666"' >> /etc/udev/rules.d/90-usbpermission.rules
-RUN ln -s /usr/lib/libncursesw.so.6.1 /usr/lib/libncurses.so.5
-
+CMD sh -c 'echo \'ATTRS{idVendor}=="0483", ATTRS{idProduct}=="3748", MODE="664", GROUP="plugdev"\' > /etc/udev/rules.d/99-openocd.rules'
+CMD sh -c 'echo \'SUBSYSTEM=="usb",GROUP="users",MODE="0666"\' > /etc/udev/rules.d/90-usbpermission.rules'
+CMD sh -c 'ln -s /lib/x86_64-linux-gnu/libncurses.so.5 /usr/lib/libncurses.so.5'
+CMD sh -c 'ln -s /lib/x86_64-linux-gnu/libtinfo.so.5 /usr/lib/libtinfo.so.5'
 # Install STM-32 plugins
 RUN /opt/eclipse/./eclipse -nosplash -application org.eclipse.equinox.p2.director \
     -repository http://ac6-tools.com/Eclipse-updates/org.openstm32.system-workbench.update-site-v2 \
