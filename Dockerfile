@@ -9,8 +9,8 @@ RUN sed 's/main$/main universe/' -i /etc/apt/sources.list && \
     true | /usr/bin/debconf-set-selections && \
     apt-get install -y wget default-jre libxext-dev libswt-gtk-4-jni && \
     apt-get install -y libxrender-dev libxtst-dev && \
-    apt-get install -y gcc gcc-avr g++ && \
-    apt-get install -y git && \
+    apt-get install -y gcc gcc-avr g++ make && \
+    apt-get install -y git usbutils lib32ncurses5 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
     rm -rf /tmp/*
@@ -40,6 +40,9 @@ WORKDIR /home/developer
 
 RUN git clone -b mapy https://github.com/EcoTech-Team/Software.git ~/Software
 RUN git clone -b develop https://github.com/EcoTech-Team/Hardware.git ~/Hardware
+RUN echo 'ATTRS{idVendor}=="0483", ATTRS{idProduct}=="3748", MODE="664", GROUP="plugdev"' >> /etc/udev/rules.d
+RUN echo 'SUBSYSTEM=="usb",GROUP="users",MODE="0666"' >> /etc/udev/rules.d/90-usbpermission.rules
+RUN ln -s /usr/lib/libncursesw.so.6.1 /usr/lib/libncurses.so.5
 
 # Install STM-32 plugins
 RUN /opt/eclipse/./eclipse -nosplash -application org.eclipse.equinox.p2.director \
